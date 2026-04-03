@@ -4,11 +4,14 @@ import dotenv from "dotenv";
 import cors from "cors";
 import Bus from "./models/busModels.js";
 
+import router from "./routes/busRouteRoutes.js";
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+app.use("/routes", router);
 
 app.post("/location", async (req, res) => {
   const { busId, lat, lng } = req.body;
