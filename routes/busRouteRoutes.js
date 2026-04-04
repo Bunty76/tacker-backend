@@ -103,4 +103,21 @@ router.get("/", async (req, res) => {
   res.json(routes);
 });
 
+// Get a specific route by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const route = await Route.findById(id);
+
+    if (!route) {
+      return res.status(404).json({ message: "Route not found" });
+    }
+
+    res.json(route);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
 export default router;
