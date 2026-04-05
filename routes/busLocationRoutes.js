@@ -52,4 +52,40 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get a specific location of bus by ID
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const bus = await Bus.findById(id);
+
+    if (!bus) {
+      return res.status(404).json({ message: "bus not found" });
+    }
+
+    res.json(bus);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete a location by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedBus = await Bus.findByIdAndDelete(id);
+
+    if (!deletedBus) {
+      return res.status(404).json({ message: "Bus not found" });
+    }
+
+    res.json({ message: "Bus deleted successfully", deletedBus });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

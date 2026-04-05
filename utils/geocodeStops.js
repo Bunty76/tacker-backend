@@ -1,10 +1,8 @@
 import fetch from "node-fetch";
 
-const Google_API_KEY = process.env.Google_API_KEY;
-
 export const getCoordinates = async (place) => {
   const res = await fetch(
-    `https://maps.googleapis.com/maps/api/geocode/json?address=${place}&key=${API_KEY}`,
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${place}&key=${process.env.Google_API_KEY}`,
   );
 
   const data = await res.json();

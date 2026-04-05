@@ -29,14 +29,8 @@ router.post("/add", async (req, res) => {
         .json({ error: "Route already exists or may stops also" });
     }
 
-    // 1️⃣ Add lat/lng to each stop
-    for (let stop of stops) {
-      const coords = await getCoordinates(stop.name + " Bhopal");
-      stop.lat = coords ? coords.lat : null;
-      stop.lng = coords ? coords.lng : null;
-    }
-
-    // 2️⃣ Check for existing route with same destination and stops
+    //most save api call cost to add stop coordinates
+    // 1 Check for existing route with same destination and stops
     const existingRoutes = await Route.find({ destination });
 
     for (let r of existingRoutes) {
@@ -45,6 +39,12 @@ router.post("/add", async (req, res) => {
           error: "Route with these stops already exists for this destination",
         });
       }
+    }
+    // 2 Add lat/lng to each stop
+    for (let stop of stops) {
+      const coords = await getCoordinates(stop.name + " Bhopal");
+      stop.lat = coords ? coords.lat : null;
+      stop.lng = coords ? coords.lng : null;
     }
 
     // 3️⃣ Save the route
@@ -118,6 +118,24 @@ router.get("/:id", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Delete a route by ID
+router.delete("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedRoute = await Route.findByIdAndDelete(id);
+
+    if (!deletedRoute) {
+      return res.status(404).json({ message: "Route not found" });
+    }
+
+    res.json({ message: "Route deleted successfully", deletedRoute });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });
 export default router;
