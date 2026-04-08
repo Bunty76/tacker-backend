@@ -1,5 +1,3 @@
-import express from "express";
-const router = express.Router();
 import Bus from "../models/busModels.js";
 import axios from "axios";
 
@@ -21,13 +19,15 @@ async function snapToRoad(lat, lng) {
     return { latitude: lat, longitude: lng }; // fallback
   }
 }
-router.post("/", async (req, res) => {
+
+//create bus with road coordinates
+export const createBus = async (req, res) => {
   const { busId, lat, lng } = req.body;
 
-  if (!busId || lat == null || lng == null) {
+  if (!busId || !lat || !lng) {
     return res.status(400).send({ error: "Missing fields" });
   }
-  // 🔥 SNAP TO ROAD
+  // 🔥 SNAP TO ROAD for only on road
   const snapped = await snapToRoad(lat, lng);
   try {
     await Bus.findOneAndUpdate(
@@ -41,21 +41,28 @@ router.post("/", async (req, res) => {
     console.log(err);
     res.status(500).send({ error: "Failed to save data" });
   }
-});
+};
 
-router.get("/", async (req, res) => {
+// Get all buses
+export const getAllBuses = async (req, res) => {
   try {
     const buses = await Bus.find();
     res.send(buses);
   } catch (err) {
-    res.status(500).send({ error: "Failed to fetch data" });
+    res
+      .status(500)
+      .send({ error: "Failed to fetch data", details: err.message });
   }
-});
+};
 
 // Get a specific location of bus by ID
-router.get("/:id", async (req, res) => {
+export const getBusById = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
 
     const bus = await Bus.findById(id);
 
@@ -65,15 +72,19 @@ router.get("/:id", async (req, res) => {
 
     res.json(bus);
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
+    console.error(err);
+    res.status(500).json({ message: "Server error", details: err.message });
   }
-});
+};
 
 // Delete a location by ID
-router.delete("/:id", async (req, res) => {
+export const deleteBusById = async (req, res) => {
   try {
     const { id } = req.params;
+
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+      return res.status(400).json({ message: "Invalid ID format" });
+    }
 
     const deletedBus = await Bus.findByIdAndDelete(id);
 
@@ -86,6 +97,4 @@ router.delete("/:id", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
-});
-
-export default router;
+};

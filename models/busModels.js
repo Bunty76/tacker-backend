@@ -1,18 +1,17 @@
 import mongoose from "mongoose";
 
-const busSchema = new mongoose.Schema({
-  busId: {
-    type: String,
-    required: true,
-    unique: true,
+const busSchema = new mongoose.Schema(
+  {
+    busId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    lat: Number,
+    lng: Number,
   },
-  lat: Number,
-  lng: Number,
-  updatedAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  { timestamps: true },
+);
 
 const Bus = mongoose.model("Bus", busSchema);
 
